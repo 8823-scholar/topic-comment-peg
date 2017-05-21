@@ -1,0 +1,37 @@
+start = doc
+
+doc = block:block+ {
+  return { type: "doc", contents: block};
+}
+
+block = blockquote / paragraph / blankline
+
+blockquote = prefix:">"+ " " textline:textline {
+  return { type: "blockquote", contents: textline, level: prefix.length };
+}
+
+paragraph = textline:textline+ blankline? {
+  return { type: "paragraph", contents: textline };
+}
+
+
+textline = !blockquote inline:inline+ blankline? {
+  return inline;
+}
+
+reply = ">>" numbers:numbers {
+  return { type: "reply", to: numbers, contents: ">>"+numbers };
+}
+
+chars = char:char+ {
+  return { type: "chars" , contents: char.join("") };
+}
+
+inline = reply / chars
+
+char = [^\n]
+numbers = number:number+ { return number.join(""); }
+number = [0-9]
+blankline = [\n] {
+  return { type: "break" };
+}
